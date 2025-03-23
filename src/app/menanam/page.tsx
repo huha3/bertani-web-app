@@ -25,19 +25,19 @@ const supabase = createClient(
 
 const formSchema = z.object({
   name: z.string().min(1, "Nama harus diisi"),
-  plantType: z.string().min(1, "Jenis tanaman harus diisi"),
+  plant_type: z.string().min(1, "Jenis tanaman harus diisi"),
   varietas: z.string().optional(),
   date: z.union([z.string(), z.date()]).optional(),  // Bisa string atau Date
-  estimatedHarvest: z.union([z.string(), z.date()]).optional(), 
-  seedSource: z.string().optional(),
-  soilType: z.string().optional(),
-  soilPh: z.string().optional(),
-  airHumadity: z.string().optional(),
+  estimated_harvest: z.union([z.string(), z.date()]).optional(), 
+  seed_source: z.string().optional(),
+  soil_type: z.string().optional(),
+  soil_ph: z.string().optional(),
+  air_humadity: z.string().optional(),
   temperature: z.string().optional(),
   altitude: z.string().optional(),
   irrigation: z.string().optional(),
-  wateringFrequency: z.string().optional(),
-  plantMethod: z.string().optional(),
+  watering_frequency: z.string().optional(),
+  plant_method: z.string().optional(),
   fertilizers: z.string().optional(),
   frequency: z.object({amount: z.string(), unit: z.string(), }).optional(), 
 });
@@ -47,21 +47,21 @@ export default function Page() {
     resolver: zodResolver(formSchema), 
     defaultValues: {
       name: "",
-      plantType: "",
+      plant_type: "",
       varietas: "",
       date: "",
-      estimatedHarvest: "",
-      seedSource: "",
-      soilType: "",
-      soilPh: "",
-      airHumadity: "",
+      estimated_harvest: "",
+      seed_source: "",
+      soil_type: "",
+      soil_ph: "",
+      air_humadity: "",
       temperature: "",
       altitude: "",
       irrigation: "",
-      wateringFrequency: "",
-      plantMethod: "",
+      watering_frequency: "",
+      plant_method: "",
       fertilizers: "",
-      frequency: "",
+      frequency: { amount: "", unit: "" },
     },
   });
 
@@ -72,23 +72,13 @@ export default function Page() {
       // Pastikan format tanggal sesuai
       const formattedData = {
         ...values,
-        date:
-          typeof values.date === "string"
-            ? values.date
-            : values.date instanceof Date
-            ? values.date.toISOString()
-            : null,
-        estimatedHarvest:
-          typeof values.estimatedHarvest === "string"
-            ? values.estimatedHarvest
-            : values.estimatedHarvest instanceof Date
-            ? values.estimatedHarvest.toISOString()
-            : null,
-        wateringFrequency: values.wateringFrequency
-          ? JSON.stringify(values.wateringFrequency) // Simpan sebagai JSON string
-          : null,
-        fertilizers: values.fertilizers ? JSON.stringify(values.fertilizers) : null,
-        frequency: values.frequency ? JSON.stringify(values.frequency) : null, // ✅ Pastikan ini disimpan sebagai string JSON
+        date: values.date instanceof Date ? values.date.toISOString() : values.date,
+        estimated_harvest: values.estimated_harvest instanceof Date ? values.estimated_harvest.toISOString() : values.estimated_harvest,
+        watering_frequency: values.watering_frequency ?? null,
+        fertilizers: values.fertilizers ?? null,
+        frequency: values.frequency 
+          ? `${values.frequency.amount} ${values.frequency.unit}` 
+          : null, //  Langsung masukin object-nya
       };
 
       const { data, error } = await supabase.from("tanaman_pengguna").insert([formattedData]);
@@ -97,6 +87,8 @@ export default function Page() {
         console.error("Error inserting data:", error.message);
       } else {
         console.log("Data berhasil dimasukkan!");
+        alert("Data berhasil disimpan!");
+        form.reset();
       }
     } catch (err) {
       console.error("Terjadi kesalahan:", err);
@@ -136,7 +128,7 @@ export default function Page() {
                 />
                   <FormField
                     control={form.control}
-                    name="plantType"
+                    name="plant_type"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Jenis Tanaman</FormLabel>
@@ -212,7 +204,7 @@ export default function Page() {
                   />
                   <FormField
                     control={form.control}
-                    name="estimatedHarvest"
+                    name="estimated_harvest"
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel>Estimasi Panen</FormLabel>
@@ -254,7 +246,7 @@ export default function Page() {
                   />
                   <FormField
                     control={form.control} // <- Panggil dari useForm
-                    name="seedSource"
+                    name="seed_source"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Sumber Benih</FormLabel>
@@ -272,7 +264,7 @@ export default function Page() {
                   />
                   <FormField
                     control={form.control} // <- Panggil dari useForm
-                    name="soilType"
+                    name="soil_type"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Jenis Tanah</FormLabel>
@@ -290,7 +282,7 @@ export default function Page() {
                   />
                   <FormField
                     control={form.control}
-                    name="soilPh"
+                    name="soil_ph"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>PH Tanah</FormLabel>
@@ -306,7 +298,7 @@ export default function Page() {
                   />
                   <FormField
                     control={form.control} // <- Panggil dari useForm
-                    name="airHumadity"
+                    name="air_humadity"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Kelembapan Udara</FormLabel>
@@ -378,7 +370,7 @@ export default function Page() {
                   />
                   <FormField
                     control={form.control} // <- Panggil dari useForm
-                    name="wateringFrequency"
+                    name="watering_frequency"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Frekuensi Penyiraman</FormLabel>
@@ -396,7 +388,7 @@ export default function Page() {
                   />
                   <FormField
                     control={form.control} // <- Panggil dari useForm
-                    name="plantMethod"
+                    name="plant_method"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Metode Penanaman</FormLabel>
