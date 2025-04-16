@@ -58,7 +58,6 @@ export default function SignupForm() {
     if (error) {
       setError(error.message);
     } else {
-      setSuccessMessage("Registrasi berhasil!");
       setTimeout(() => router.push("/login"), 1000);
     }
 

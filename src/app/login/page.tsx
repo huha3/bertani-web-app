@@ -1,43 +1,35 @@
 "use client";
-import { useRouter } from "next/navigation"; 
+
 import { useState } from "react";
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { createClient } from "@supabase/supabase-js";
+import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { supabase } from "@/lib/supabase"; // Pakai supabase dari file `lib/supabase.ts`
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error("ERROR: Supabase credentials are missing. Periksa environment variables.");
-  throw new Error("Supabase credentials are missing.");
+interface LoginFormProps {
+  className?: string;
 }
 
-// Buat Supabase client dengan validasi
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-export { supabase };
-
-export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
+export default function LoginForm({ className }: LoginFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    console.log("🔹 Login Attempt:", { email, password });
+    console.log("Login Attempt:", { email, password });
 
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
-      console.log("🔹 Login response:", data, error);
+      console.log("Login response:", data, error);
       
       if (error) {
         console.error("Login failed:", error.message);
@@ -57,12 +49,11 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
       console.error("Unexpected error:", err);
       setError("Terjadi kesalahan, coba lagi.");
     }
-
     setLoading(false);
   };
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    <div className={cn("flex flex-col gap-6", className)}>
       <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
           <form onSubmit={handleLogin} className="p-6 md:p-8">

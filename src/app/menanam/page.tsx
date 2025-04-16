@@ -3,7 +3,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { SubmitHandler, useForm, Controller  } from "react-hook-form"
 import { z } from "zod"
-import { useState } from "react";
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
@@ -17,6 +16,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { createClient } from "@supabase/supabase-js";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner"
+
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -64,6 +66,8 @@ export default function Page() {
       frequency: { amount: "", unit: "" },
     },
   });
+  
+  const router = useRouter();
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -85,13 +89,23 @@ export default function Page() {
 
       if (error) {
         console.error("Error inserting data:", error.message);
+        toast.error("Gagal menyimpan data", {
+          description: error.message,
+        });
       } else {
-        console.log("Data berhasil dimasukkan!");
-        alert("Data berhasil disimpan!");
+        toast("Data berhasil disimpan!", {
+          description: "Tanamanmu berhasil ditambahkan ke jadwal",
+          action: {
+            label: "Lihat Jadwal",
+            onClick: () => router.push("/menanam/jadwal"),
+          },
+        });
         form.reset();
+        router.push("/menanam/jadwal");
       }
     } catch (err) {
       console.error("Terjadi kesalahan:", err);
+      toast.error("Terjadi kesalahan saat menyimpan.");
     }
   };
 

@@ -1,3 +1,7 @@
+'use client'
+
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -5,6 +9,7 @@ import { BarChart3, Download, MoreHorizontal, TrendingUp, Users } from "lucide-r
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow, TableFooter } from "@/components/ui/table"
+import { Skeleton } from "@/components/ui/skeleton";
 
 const invoices = [
   {
@@ -16,6 +21,24 @@ const invoices = [
 ]
 
 export default function DashboardPage() {
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data, error } = await supabase.auth.getUser();
+      if (error) {
+        console.error("Gagal ambil user:", error.message);
+      } else {
+        setUser(data?.user?.user_metadata || {});
+      }
+      setLoading(false);
+    };
+
+    fetchUser();
+  }, []);
+
+
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
@@ -36,7 +59,8 @@ export default function DashboardPage() {
       <main className="flex-1 overflow-auto p-4 md:p-6">
         {/* Welcome section */}
         <div className="mb-8">
-          <h2 className="text-3xl font-bold tracking-tight">Welcome back, Admin</h2>
+          <h2 className="text-3xl font-bold tracking-tight">Welcome back, {user?.username || "User"}!
+          </h2>
           <p className="text-muted-foreground">Here's an overview of your account activity and business performance.</p>
         </div>
       <div className="grid grid-cols-2 md:grid-cols-2 gap-4">

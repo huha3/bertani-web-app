@@ -1,11 +1,10 @@
-import { LoginForm } from "@/app/login/login-form"
+import type React from "react"
 
-export default function LoginPage() {
+export default function LoginLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="bg-muted flex min-h-svh flex-col items-center justify-center p-6 md:p-10">
-      <div className="w-full max-w-sm md:max-w-3xl">
-        <LoginForm />
-      </div>
+      {children}
     </div>
-  )
+  );
 }
+

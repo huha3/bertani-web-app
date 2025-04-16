@@ -1,4 +1,5 @@
-import SignupForm from "@/app/signup/signup-form"
+import type React from "react"
+import SignupForm from "@/app/signup/page"
 
 export default function SignupPage() {
   return (

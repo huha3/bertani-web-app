@@ -3,32 +3,10 @@
 import * as React from "react";
 import { usePathname } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
-import {
-  AudioWaveform,
-  BarChart3,
-  BookOpen,
-  Bot,
-  Command,
-  Frame,
-  GalleryVerticalEnd,
-  Home,
-  Map,
-  PieChart,
-  Settings2,
-  Sprout,
-  ClipboardList,
-  SquareTerminal,
-  Users,
-} from "lucide-react";
+import { BookOpen,  Home, Sprout, ClipboardList, Users, } from "lucide-react";
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarRail,
-} from "@/components/ui/sidebar";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail, } from "@/components/ui/sidebar";
 
 // Inisialisasi Supabase Client
 const supabase = createClient(
@@ -45,15 +23,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   React.useEffect(() => {
     const fetchUser = async () => {
       const { data, error } = await supabase.auth.getUser();
+      console.log("User data fetched:", data);
+  
       if (error) {
         console.error("Gagal mendapatkan user:", error.message);
       } else {
-        setUser(data?.user?.user_metadata); // Ambil dari user_metadata
+        setUser(data?.user?.user_metadata || {}); // Cek jika user_metadata kosong
       }
     };
   
     fetchUser();
-  }, []);  
+  }, []);
+    
 
   // Definisi navigasi sidebar
   const navMain = [
@@ -67,8 +48,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       url: "/tumbuhan",
       icon: Sprout,
       items: [
-        { title: "Lagi Menanam Apa?", url: "/tumbuhan/menanam" },
-        { title: "Tanamanmu Sakit Apa?", url: "/tumbuhan/diagnosis" },
+        { title: "Lagi Menanam Apa?", url: "/menanam" },
+        { title: "Tanamanmu Sakit Apa?", url: "/diagnosa" },
       ],
     },
     {
@@ -76,9 +57,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       url: "/manajemen",
       icon: ClipboardList,
       items: [
-        { title: "Penjadwalan Perawatan", url: "/manajemen/penjadwalan" },
-        { title: "Notifikasi", url: "/manajemen/notifikasi" },
-        { title: "Lencana Keaktifan", url: "/manajemen/lencana" },
+        { title: "Penjadwalan Perawatan", url: "/penjadwalan" },
+        { title: "Notifikasi", url: "/notifikasi" },
+        { title: "Lencana Keaktifan", url: "/lencana" },
       ],
     },
     {
@@ -86,9 +67,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       url: "/riwayat",
       icon: BookOpen,
       items: [
-        { title: "Riwayat", url: "/riwayat/rekap" },
-        { title: "Cari Toko Pupuk", url: "/riwayat/toko-pupuk" },
-        { title: "Hubungi Pengepul", url: "/riwayat/pengepul" },
+        { title: "Riwayat", url: "/rekap" },
+        { title: "Cari Toko Pupuk", url: "/toko-pupuk" },
+        { title: "Hubungi Pengepul", url: "/pengepul" },
       ],
     },
   ];
@@ -116,7 +97,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
+      <SidebarContent>
         {user ? (
           <div className="flex flex-col items-start gap-0.1 p-2">
             <p className="text-lg font-semibold">{user.username}</p>
@@ -125,8 +106,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         ) : (
           <p className="text-sm text-gray-500">Memuat profil...</p>
         )}
-      </SidebarHeader>
-      <SidebarContent>
         <NavMain items={navMainWithActive} />
       </SidebarContent>
       <SidebarFooter>
