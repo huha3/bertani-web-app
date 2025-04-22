@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useEffect } from "react";
 import { SubmitHandler, useForm, Controller  } from "react-hook-form"
 import { z } from "zod"
 import { SidebarTrigger } from "@/components/ui/sidebar"
@@ -18,12 +19,7 @@ import { cn } from "@/lib/utils";
 import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner"
-
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import supabase  from "@/lib/supabase";
 
 const formSchema = z.object({
   name: z.string().min(1, "Nama harus diisi"),
@@ -69,13 +65,27 @@ export default function Page() {
   
   const router = useRouter();
 
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      console.log("User saat ini:", user);
+    };
+    checkUser();
+  }, []);
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("Kamu belum login!");
+        return;
+      }
       console.log("Data yang dikirim ke Supabase:", values);
 
       // Pastikan format tanggal sesuai
       const formattedData = {
         ...values,
+        user_id: user.id,
         date: values.date instanceof Date ? values.date.toISOString() : values.date,
         estimated_harvest: values.estimated_harvest instanceof Date ? values.estimated_harvest.toISOString() : values.estimated_harvest,
         watering_frequency: values.watering_frequency ?? null,
@@ -85,27 +95,82 @@ export default function Page() {
           : null, //  Langsung masukin object-nya
       };
 
-      const { data, error } = await supabase.from("tanaman_pengguna").insert([formattedData]);
-
-      if (error) {
-        console.error("Error inserting data:", error.message);
-        toast.error("Gagal menyimpan data", {
-          description: error.message,
-        });
-      } else {
-        toast("Data berhasil disimpan!", {
-          description: "Tanamanmu berhasil ditambahkan ke jadwal",
-          action: {
-            label: "Lihat Jadwal",
-            onClick: () => router.push("/menanam/jadwal"),
-          },
-        });
-        form.reset();
-        router.push("/menanam/jadwal");
+      if (!values.date || !values.estimated_harvest) {
+        toast.error("Tanggal tanam dan estimasi panen wajib diisi!");
+        return;
       }
+
+      const response = await fetch('/api/tambah-tanaman', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formattedData),
+      });
+      const result = await response.json();
+      console.log(result);
+
+      if (response.ok) {
+        const result = await response.json(); // Parse JSON dari response
+        console.log(result); // Cek apakah data sudah benar
+      } else {
+        const errorText = await response.text(); // Jika error, tampilkan isi HTML-nya
+        console.error("Error response:", errorText);
+        toast.error("Terjadi kesalahan saat menyimpan.");
+      }
+        const tanaman_id = result.id;
+        const start = new Date(values.date);
+        const end = new Date(values.estimated_harvest);
+        const wateringFreq: number = Number(values.watering_frequency) || 0;
+        const fertilizerFreq: number = Number(values.frequency?.amount) || 0;
+        const unit = values.frequency?.unit;
+        const jadwal: {
+          tanaman_id: number;
+          tanggal: Date;
+          aktivitas: string;
+        }[] = [];
+  
+        // Generate jadwal penyiraman
+        if (wateringFreq > 0) {
+          for (let d = new Date(start); d <= end; d.setDate(d.getDate() + wateringFreq)) {
+            jadwal.push({
+              tanaman_id,
+              tanggal: new Date(d),
+              aktivitas: "Penyiraman",
+            });
+          }
+        }
+  
+        // Generate jadwal pemupukan
+        if (fertilizerFreq > 0 && values.fertilizers) {
+          const daysToAdd = unit === "minggu" ? fertilizerFreq * 7 : fertilizerFreq;
+          for (let d = new Date(start); d <= end; d.setDate(d.getDate() + daysToAdd)) {
+            jadwal.push({
+              tanaman_id,
+              tanggal: new Date(d),
+              aktivitas: `Pemberian pupuk ${values.fertilizers}`,
+            });
+          }
+        }
+  
+        const { error: jadwalError } = await supabase.from("jadwal_menanam").insert(jadwal);
+  
+        if (jadwalError) {
+          toast.warning("Gagal membuat jadwal, kamu bisa buat lagi jadwalnya", {
+            description: jadwalError.message,
+          });
+        } else {
+          toast("Tanaman & Jadwal berhasil disimpan!", {
+            description: "Lihat jadwal tanamanmu",
+            action: {
+              label: "Lihat",
+              onClick: () => router.push("/menanam/jadwal"),
+            },
+          });
+          form.reset();
+        }
     } catch (err) {
       console.error("Terjadi kesalahan:", err);
       toast.error("Terjadi kesalahan saat menyimpan.");
+
     }
   };
 
@@ -480,7 +545,6 @@ export default function Page() {
                       );
                     }}
                   />
-                  <form onSubmit={form.handleSubmit(onSubmit)}></form>
                   <Button type="submit">Submit</Button>
                 </form>
               </Form>

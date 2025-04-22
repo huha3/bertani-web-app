@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { supabase } from "@/lib/supabase"; // Pakai supabase dari file `lib/supabase.ts`
+import supabase from "@/lib/supabase"; // Pakai supabase dari file `lib/supabase.ts`
+import AuthVisibilityHandler from "@/components/auth-visibility-handler";
 
 interface LoginFormProps {
   className?: string;
@@ -53,6 +54,8 @@ export default function LoginForm({ className }: LoginFormProps) {
   };
 
   return (
+    <>
+      <AuthVisibilityHandler />
     <div className={cn("flex flex-col gap-6", className)}>
       <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
@@ -122,5 +125,6 @@ export default function LoginForm({ className }: LoginFormProps) {
         and <a href="#">Privacy Policy</a>.
       </div>
     </div>
+    </>
   );
 }
