@@ -74,7 +74,7 @@ export function NavUser({
               </div>
             </DropdownMenuLabel>
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/profil")}>
                 <BadgeCheck />
                 Account
               </DropdownMenuItem>

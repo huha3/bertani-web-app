@@ -57,7 +57,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       url: "/manajemen",
       icon: ClipboardList,
       items: [
-        { title: "Penjadwalan Perawatan", url: "/penjadwalan" },
+        { title: "Penjadwalan Perawatan", url: "/jadwal" },
         { title: "Notifikasi", url: "/notifikasi" },
         { title: "Lencana Keaktifan", url: "/lencana" },
       ],

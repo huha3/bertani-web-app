@@ -1,0 +1,171 @@
+"use client";
+
+import { Card, CardContent } from "@/components/ui/card";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { useCallback, useState, useEffect } from "react";
+import { createClient } from '@supabase/supabase-js';
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { z } from "zod";
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+const diagnosaSchema = z.object({
+  id_user: z.string(),
+  nama_tanaman: z.string().min(1, "Nama tanaman wajib diisi"),
+  nama_penyakit: z.string().min(1, "Nama penyakit wajib diisi"),
+  saran: z.string().min(1, "Saran wajib diisi"),
+  gambar: z.instanceof(File).optional().nullable(),
+});
+
+export default function Hasil() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
+
+  const [diagnosa, setDiagnosa] = useState({
+    id_user: "user-id-123",
+    nama_tanaman: "",
+    nama_penyakit: "",
+    saran: "",
+    gambar: null as File | null,
+  });
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setDiagnosa(prev => ({ ...prev, gambar: file }));
+    setImageUrl(URL.createObjectURL(file));
+
+    // Dummy prediksi dari API lokal (ganti dengan endpoint aslimu nanti)
+    const res = await fetch("/api/predict", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ image: "dummy-base64-image" }),
+    });
+    const result = await res.json();
+
+    setDiagnosa(prev => ({
+      ...prev,
+      nama_tanaman: result.nama_tanaman || "Cabai Merah",
+      nama_penyakit: result.nama_penyakit || "Busuk Akar",
+      saran: result.saran || "Gunakan fungisida dan perbaiki drainase tanah.",
+    }));
+  };
+
+  const uploadAndSave = useCallback(async () => {
+    if (!diagnosa.gambar) return;
+    setLoading(true);
+    const filename = `${Date.now()}-${diagnosa.gambar.name}`;
+
+    const { data: uploadData, error: uploadError } = await supabase
+      .storage
+      .from("diagnosa-images")
+      .upload(filename, diagnosa.gambar);
+
+    if (uploadError) {
+      console.error("Upload gagal:", uploadError.message);
+      setLoading(false);
+      return;
+    }
+
+    const url = supabase.storage.from("diagnosa-images").getPublicUrl(filename).data.publicUrl;
+    setImageUrl(url);
+
+    const { error: insertError } = await supabase.from("hasil_diagnosa").insert([
+      {
+        id_user: diagnosa.id_user,
+        nama_tanaman: diagnosa.nama_tanaman,
+        nama_penyakit: diagnosa.nama_penyakit,
+        saran: diagnosa.saran,
+        gambar: url,
+      },
+    ]);
+
+    if (insertError) {
+      console.error("Insert gagal:", insertError.message);
+    }
+    setLoading(false);
+  }, [diagnosa]);
+
+  useEffect(() => {
+    if (diagnosa.gambar) {
+      uploadAndSave();
+    }
+  }, [diagnosa.gambar, uploadAndSave]);
+
+  // Mengubah fungsi handleLoad untuk melakukan prediksi ulang
+  const handleLoad = async () => {
+    // Ini akan mengirimkan gambar yang sudah ada ke API atau memuat ulang model
+    if (!diagnosa.gambar) return;
+
+    setLoading(true);
+
+    const res = await fetch("/api/predict", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ image: "dummy-base64-image" }), // Sesuaikan dengan gambar yang sudah ada
+    });
+
+    const result = await res.json();
+
+    setDiagnosa(prev => ({
+      ...prev,
+      nama_tanaman: result.nama_tanaman || "Cabai Merah",
+      nama_penyakit: result.nama_penyakit || "Busuk Akar",
+      saran: result.saran || "Gunakan fungisida dan perbaiki drainase tanah.",
+    }));
+
+    setLoading(false);
+  };
+
+      return (
+        <div className="flex flex-col h-full">
+        {/* Header */}
+        <header className="flex h-16 items-center justify-between border-b px-4">
+            <div className="flex items-center gap-2">
+            <SidebarTrigger className="-ml-1" />
+            <h1 className="text-xl font-semibold">Hasil Diagnosa</h1>
+            </div>
+        </header>
+        <div className="flex flex-col h-full p-5">
+          <Card className="overflow-hidden p-5 w-[950px] mx-auto">
+            <CardContent className="p-3">
+            <div className="flex flex-col md:flex-row gap-6 px-3 pb-6">
+            
+            {/* Kiri: Gambar */}
+            <div className="flex-1 bg-muted rounded-lg flex items-center justify-center">
+                {imageUrl ? (
+                <img src={imageUrl} alt="Gambar Tanaman" className="rounded-lg object-cover max-h-64" />
+                ) : (
+                <p className="text-center text-sm text-muted-foreground">Tidak ada gambar</p>
+                )}
+            </div>
+
+            {/* Kanan: Teks Diagnosa */}
+            <div className="flex-1 bg-muted rounded-lg p-4 space-y-2">
+                <p><span className="text-2xl font-bold mb-4">{diagnosa.nama_tanaman}</span></p>
+                <div className="grid grid-cols-[100px_10px_auto] gap-y-2 items-start">
+                  <p className="font-medium">Penyakit</p>
+                  <p>:</p>
+                  <p>{diagnosa.nama_penyakit}</p>
+
+                  <p className="font-medium">Solusi</p>
+                  <p>:</p>
+                  <p>{diagnosa.saran}</p>
+                </div>
+                <div className="pt-4">
+                <Button onClick={handleLoad}>Diagnosa Ulang</Button>
+                </div>
+            </div>
+
+            </div>
+            </CardContent>
+          </Card>
+          </div>
+        </div>
+      );
+}
