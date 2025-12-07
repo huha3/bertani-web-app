@@ -1,42 +1,68 @@
 "use client";
 
 import * as React from "react";
-import supabase from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
 import { usePathname } from "next/navigation";
-import { createClient } from "@supabase/supabase-js";
-import { BookOpen,  Home, Sprout, ClipboardList, Users, } from "lucide-react";
+import {
+  BookOpen,
+  Home,
+  Sprout,
+  ClipboardList, 
+} from "lucide-react";
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail, } from "@/components/ui/sidebar";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarRail,
+} from "@/components/ui/sidebar";
+import { SidebarBadge } from "@/components/sidebar-badge";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
-  const [user, setUser] = React.useState<any>(null);
-  const [badge, setBadge] = React.useState<string>("Pemula"); // Default lencana
+  const [userData, setUserData] = React.useState<any>(null);
 
-  // Ambil informasi user setelah login
   React.useEffect(() => {
-    const fetchUser = async () => {
-      const { data, error } = await supabase.auth.getUser();
-      console.log("User data fetched:", data);
-  
-      if (error) {
-        console.error("Gagal mendapatkan user:", error.message);
-      } else {
-        setUser(data?.user?.user_metadata || {}); // Cek jika user_metadata kosong
-      }
-    };
-  
-    fetchUser();
-  }, []);
-    
+    const fetchUserProfile = async () => {
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
 
-  // Definisi navigasi sidebar
+      if (authError || !user) {
+        console.error("Gagal mendapatkan user:", authError?.message);
+        return;
+      }
+
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("full_name, username")
+        .eq("id", user.id)
+        .single();
+
+      if (profileError) {
+        console.error("Gagal mengambil profil:", profileError.message);
+      }
+
+      setUserData({
+        id: user.id,
+        email: user.email,
+        username: profile?.username || "Petani",
+        full_name: profile?.full_name || "",
+      });
+    };
+
+    fetchUserProfile();
+  }, []);
+
   const navMain = [
     {
       title: "Dashboard",
       url: "/dashboard",
       icon: Home,
+      items: [{ title: "Dashboard", url: "/dashboard" }],
     },
     {
       title: "Tumbuhan Kamu",
@@ -53,7 +79,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       icon: ClipboardList,
       items: [
         { title: "Penjadwalan Perawatan", url: "/jadwal" },
-        { title: "Notifikasi", url: "/notifikasi" },
         { title: "Lencana Keaktifan", url: "/lencana" },
       ],
     },
@@ -62,14 +87,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       url: "/riwayat",
       icon: BookOpen,
       items: [
-        { title: "Riwayat", url: "/rekap" },
+        { title: "Riwayat", url: "/riwayat" },
         { title: "Cari Toko Pupuk", url: "/toko-pupuk" },
         { title: "Hubungi Pengepul", url: "/pengepul" },
       ],
     },
   ];
 
-  // Update navMain untuk menandai item aktif
   const navMainWithActive = React.useMemo(() => {
     return navMain.map((item) => {
       const isActive =
@@ -79,7 +103,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
       const itemsWithActive = item.items?.map((subItem) => ({
         ...subItem,
-        isActive: pathname === subItem.url,
+        isActive: pathname.startsWith(subItem.url),
       }));
 
       return {
@@ -92,30 +116,42 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="icon" {...props}>
+      {/* Header dengan Badge aja */}
+      <SidebarHeader className="border-b border-sidebar-border p-4">
+        <div className="flex items-center justify-center">
+          {userData ? (
+            <SidebarBadge />
+          ) : (
+            <div className="animate-pulse h-6 w-20 bg-gray-300 rounded" />
+          )}
+        </div>
+      </SidebarHeader>
+
+      {/* Main Navigation */}
       <SidebarContent>
-        {user ? (
-          <div className="flex flex-col items-start gap-0.1 p-2">
-            <p className="text-lg font-semibold">{user.username}</p>
-            <span className="text-sm text-gray-500">Lencana: {badge}</span>
-          </div>
-        ) : (
-          <p className="text-sm text-gray-500">Memuat profil...</p>
-        )}
         <NavMain items={navMainWithActive} />
       </SidebarContent>
+
+      {/* Footer dengan User Info */}
       <SidebarFooter>
-        {user ? (
+        {userData ? (
           <NavUser
             user={{
-              name: user.username, // Nama user (bisa diambil dari metadata kalau ada)
-              email: user.email,
-              avatar: "/avatars/default.jpg", // Bisa diganti dengan user.avatar kalau ada
+              name: userData.full_name || userData.username,
+              email: userData.email || "Tidak ada email",
+              avatar: "/avatars/default.jpg",
             }}
           />
         ) : (
-          <p className="text-sm text-gray-500">Memuat profil...</p>
+          <div className="p-2">
+            <div className="animate-pulse space-y-2">
+              <div className="h-4 w-24 bg-gray-300 rounded" />
+              <div className="h-3 w-32 bg-gray-300 rounded" />
+            </div>
+          </div>
         )}
       </SidebarFooter>
+
       <SidebarRail />
     </Sidebar>
   );
