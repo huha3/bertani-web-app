@@ -1,0 +1,163 @@
+[33mcommit e935862a9eba004dc48891defd346c09dbb95a25[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mnama-branch[m[33m)[m
+Author: huha3 <anisahsna3@gmail.com>
+Date:   Sun Dec 7 12:33:01 2025 +0700
+
+    update terbaru
+
+[1mdiff --git a/package-lock.json b/package-lock.json[m
+[1mindex 109835b..74ca491 100644[m
+[1m--- a/package-lock.json[m
+[1m+++ b/package-lock.json[m
+[36m@@ -8,6 +8,7 @@[m
+         "@angular/core": "^19.2.2",[m
+         "@hookform/resolvers": "^4.1.3",[m
+         "@next/font": "^14.2.15",[m
+[32m+[m[32m        "@radix-ui/react-alert-dialog": "^1.1.15",[m
+         "@radix-ui/react-avatar": "^1.1.3",[m
+         "@radix-ui/react-checkbox": "^1.3.2",[m
+         "@radix-ui/react-collapsible": "^1.1.3",[m
+[36m@@ -15,14 +16,17 @@[m
+         "@radix-ui/react-dropdown-menu": "^2.1.6",[m
+         "@radix-ui/react-label": "^2.1.2",[m
+         "@radix-ui/react-popover": "^1.1.6",[m
+[32m+[m[32m        "@radix-ui/react-progress": "^1.1.7",[m
+[32m+[m[32m        "@radix-ui/react-radio-group": "^1.3.8",[m
+         "@radix-ui/react-select": "^2.1.6",[m
+         "@radix-ui/react-separator": "^1.1.2",[m
+[31m-        "@radix-ui/react-slot": "^1.2.3",[m
+[32m+[m[32m        "@radix-ui/react-slot": "^1.2.4",[m
+         "@radix-ui/react-tabs": "^1.1.12",[m
+         "@radix-ui/react-tooltip": "^1.1.8",[m
+         "@react-native-async-storage/async-storage": "^2.1.2",[m
+         "@supabase/auth-ui-react": "^0.4.7",[m
+         "@supabase/auth-ui-shared": "^0.1.8",[m
+[32m+[m[32m        "@supabase/ssr": "^0.7.0",[m
+         "@supabase/supabase-js": "^2.49.1",[m
+         "@tailwindcss/postcss": "^4.0.13",[m
+         "autoprefixer": "^10.4.21",[m
+[36m@@ -31,16 +35,17 @@[m
+         "cmdk": "^1.1.1",[m
+         "date-fns": "^3.6.0",[m
+         "dayjs": "^1.11.13",[m
+[32m+[m[32m        "dotenv": "^17.2.3",[m
+         "expo": "^52.0.38",[m
+         "express": "^4.21.2",[m
+         "isomorphic-fetch": "^3.0.0",[m
+         "lucide-react": "^0.479.0",[m
+[31m-        "next": "^15.2.2",[m
+[32m+[m[32m        "next": "^16.0.1",[m
+         "next-themes": "^0.4.6",[m
+         "postcss": "^8.5.3",[m
+[31m-        "react": "^19.0.0",[m
+[31m-        "react-day-picker": "^9.8.0",[m
+[31m-        "react-dom": "^19.0.0",[m
+[32m+[m[32m        "react": "^19.2.0",[m
+[32m+[m[32m        "react-day-picker": "^9.11.1",[m
+[32m+[m[32m        "react-dom": "^19.2.0",[m
+         "react-dropzone": "^14.3.8",[m
+         "react-hook-form": "^7.54.2",[m
+         "react-native-url-polyfill": "^2.0.0",[m
+[36m@@ -63,9 +68,9 @@[m
+       }[m
+     },[m
+     "node_modules/@0no-co/graphql.web": {[m
+[31m-      "version": "1.1.2",[m
+[31m-      "resolved": "https://registry.npmjs.org/@0no-co/graphql.web/-/graphql.web-1.1.2.tgz",[m
+[31m-      "integrity": "sha512-N2NGsU5FLBhT8NZ+3l2YrzZSHITjNXNuDhC4iDiikv0IujaJ0Xc6xIxQZ/Ek3Cb+rgPjnLHYyJm11tInuJn+cw==",[m
+[32m+[m[32m      "version": "1.2.0",[m
+[32m+[m[32m      "resolved": "https://registry.npmjs.org/@0no-co/graphql.web/-/graphql.web-1.2.0.tgz",[m
+[32m+[m[32m      "integrity": "sha512-/1iHy9TTr63gE1YcR5idjx8UREz1s0kFhydf3bBLCXyqjhkIc6igAzTOx3zPifCwFR87tsh/4Pa9cNts6d2otw==",[m
+       "license": "MIT",[m
+       "peerDependencies": {[m
+         "graphql": "^14.0.0 || ^15.0.0 || ^16.0.0"[m
+[36m@@ -88,23 +93,10 @@[m
+         "url": "https://github.com/sponsors/sindresorhus"[m
+       }[m
+     },[m
+[31m-    "node_modules/@ampproject/remapping": {[m
+[31m-      "version": "2.3.0",[m
+[31m-      "resolved": "https://registry.npmjs.org/@ampproject/remapping/-/remapping-2.3.0.tgz",[m
+[31m-      "integrity": "sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==",[m
+[31m-      "license": "Apache-2.0",[m
+[31m-      "dependencies": {[m
+[31m-        "@jridgewell/gen-mapping": "^0.3.5",[m
+[31m-        "@jridgewell/trace-mapping": "^0.3.24"[m
+[31m-      },[m
+[31m-      "engines": {[m
+[31m-        "node": ">=6.0.0"[m
+[31m-      }[m
+[31m-    },[m
+     "node_modules/@angular/core": {[m
+[31m-      "version": "19.2.14",[m
+[31m-      "resolved": "https://registry.npmjs.org/@angular/core/-/core-19.2.14.tgz",[m
+[31m-      "integrity": "sha512-EVErpW9tGqJ/wNcAN3G/ErH8pHCJ8mM1E6bsJ8UJIpDTZkpqqYjBMtZS9YWH5n3KwUd1tAkAB2w8FK125AjDUQ==",[m
+[32m+[m[32m      "version": "19.2.15",[m
+[32m+[m[32m      "resolved": "https://registry.npmjs.org/@angular/core/-/core-19.2.15.tgz",[m
+[32m+[m[32m      "integrity": "sha512-PxhzCwwm23N4Mq6oV7UPoYiJF4r6FzGhRSxOBBlEp322k7zEQbIxd/XO6F3eoG73qC1UsOXMYYv6GnQpx42y3A==",[m
+       "license": "MIT",[m
+       "dependencies": {[m
+         "tslib": "^2.3.0"[m
+[36m@@ -127,30 +119,30 @@[m
+       }[m
+     },[m
+     "node_modules/@babel/compat-data": {[m
+[31m-      "version": "7.27.5",[m
+[31m-      "resolved": "https://registry.npmjs.org/@babel/compat-data/-/compat-data-7.27.5.tgz",[m
+[31m-      "integrity": "sha512-KiRAp/VoJaWkkte84TvUd9qjdbZAdiqyvMxrGl1N6vzFogKmaLgoM3L1kgtLicp2HP5fBJS8JrZKLVIZGVJAVg==",[m
+[32m+[m[32m      "version": "7.28.5",[m
+[32m+[m[32m      "resolved": "https://registry.npmjs.org/@babel/compat-data/-/compat-data-7.28.5.tgz",[m
+[32m+[m[32m      "integrity": "sha512-6uFXyCayocRbqhZOB+6XcuZbkMNimwfVGFji8CTZnCzOHVGvDqzvitu1re2AU5LROliz7eQPhB8CpAMvnx9EjA==",[m
+       "license": "MIT",[m
+       "engines": {[m
+         "node": ">=6.9.0"[m
+       }[m
+     },[m
+     "node_modules/@babel/core": {[m
+[31m-      "version": "7.27.4",[m
+[31m-      "resolved": "https://registry.npmjs.org/@babel/core/-/core-7.27.4.tgz",[m
+[31m-      "integrity": "sha512-bXYxrXFubeYdvB0NhD/NBB3Qi6aZeV20GOWVI47t2dkecCEoneR4NPVcb7abpXDEvejgrUfFtG6vG/zxAKmg+g==",[m
+[32m+[m[32m      "version": "7.28.5",[m
+[32m+[m[32m      "resolved": "https://registry.npmjs.org/@babel/core/-/core-7.28.5.tgz",[m
+[32m+[m[32m      "integrity": "sha512-e7jT4DxYvIDLk1ZHmU/m/mB19rex9sv0c2ftBtjSBv+kVM/902eh0fINUzD7UwLLNR+jU585GxUJ8/EBfAM5fw==",[m
+       "license": "MIT",[m
+       "dependencies": {[m
+[31m-        "@ampproject/remapping": "^2.2.0",[m
+         "@babel/code-frame": "^7.27.1",[m
+[31m-        "@babel/generator": "^7.27.3",[m
+[32m+[m[32m        "@babel/generator": "^7.28.5",[m
+         "@babel/helper-compilation-targets": "^7.27.2",[m
+[31m-        "@babel/helper-module-transforms": "^7.27.3",[m
+[31m-        "@babel/helpers": "^7.27.4",[m
+[31m-        "@babel/parser": "^7.27.4",[m
+[32m+[m[32m        "@babel/helper-module-transforms": "^7.28.3",[m
+[32m+[m[32m        "@babel/helpers": "^7.28.4",[m
+[32m+[m[32m        "@babel/parser": "^7.28.5",[m
+         "@babel/template": "^7.27.2",[m
+[31m-        "@babel/traverse": "^7.27.4",[m
+[31m-        "@babel/types": "^7.27.3",[m
+[32m+[m[32m        "@babel/traverse": "^7.28.5",[m
+[32m+[m[32m        "@babel/types": "^7.28.5",[m
+[32m+[m[32m        "@jridgewell/remapping": "^2.3.5",[m
+         "convert-source-map": "^2.0.0",[m
+         "debug": "^4.1.0",[m
+         "gensync": "^1.0.0-beta.2",[m
+[36m@@ -189,15 +181,15 @@[m
+       }[m
+     },[m
+     "node_modules/@babel/generator": {[m
+[31m-      "version": "7.27.5",[m
+[31m-      "resolved": "https://registry.npmjs.org/@babel/generator/-/generator-7.27.5.tgz",[m
+[31m-      "integrity": "sha512-ZGhA37l0e/g2s1Cnzdix0O3aLYm66eF8aufiVteOgnwxgnRP8GoyMj7VWsgWnQbVKXyge7hqrFh2K2TQM6t1Hw==",[m
+[32m+[m[32m      "version": "7.28.5",[m
+[32m+[m[32m      "resolved": "https://registry.npmjs.org/@babel/generator/-/generator-7.28.5.tgz",[m
+[32m+[m[32m      "integrity": "sha512-3EwLFhZ38J4VyIP6WNtt2kUdW9dokXA9Cr4IVIFHuCpZ3H8/YFOl5JjZHisrn1fATPBmKKqXzDFvh9fUwHz6CQ==",[m
+       "license": "MIT",[m
+       "dependencies": {[m
+[31m-        "@babel/parser": "^7.27.5",[m
+[31m-        "@babel/types": "^7.27.3",[m
+[31m-        "@jridgewell/gen-mapping": "^0.3.5",[m
+[31m-        "@jridgewell/trace-mapping": "^0.3.25",[m
+[32m+[m[32m        "@babel/parser": "^7.28.5",[m
+[32m+[m[32m        "@babel/types": "^7.28.5",[m
+[32m+[m[32m        "@jridgewell/gen-mapping": "^0.3.12",[m
+[32m+[m[32m      
