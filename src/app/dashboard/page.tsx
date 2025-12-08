@@ -368,7 +368,7 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => router.push("/tanaman")}>
+            <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => router.push("/jadwal")}>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
