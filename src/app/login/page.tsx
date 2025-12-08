@@ -7,8 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import supabase from "@/lib/supabase"; 
+import { Separator } from "@/components/ui/separator";
+import { supabase } from "@/lib/supabase"; 
 import AuthVisibilityHandler from "@/components/auth-visibility-handler";
+import { toast } from "sonner";
+import { Mail, Lock, Eye, EyeOff, LogIn } from "lucide-react";
 
 interface LoginFormProps {
   className?: string;
@@ -17,6 +20,7 @@ interface LoginFormProps {
 export default function LoginForm({ className }: LoginFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -25,106 +29,197 @@ export default function LoginForm({ className }: LoginFormProps) {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    console.log("Login Attempt:", { email, password });
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ 
+        email, 
+        password 
+      });
 
-      console.log("Login response:", data, error);
-      
       if (error) {
-        console.error("Login failed:", error.message);
         setError(error.message);
+        toast.error("Login gagal: " + error.message);
       } else if (data.session) {
-        console.log("Login berhasil! User:", data.user);
-
-        // Simpan session ke localStorage agar tidak logout setelah refresh
+        // Simpan session
         localStorage.setItem("supabase_session", JSON.stringify(data.session));
-
+        
+        toast.success("🎉 Login berhasil! Selamat datang kembali!");
+        
         // Redirect ke dashboard
-        router.push("/dashboard");
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 500);
       } else {
         setError("Login gagal: tidak ada session yang dikembalikan.");
+        toast.error("Login gagal");
       }
     } catch (err) {
       console.error("Unexpected error:", err);
       setError("Terjadi kesalahan, coba lagi.");
+      toast.error("Terjadi kesalahan");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
     <>
       <AuthVisibilityHandler />
-    <div className={cn("flex flex-col gap-6", className)}>
-      <Card className="overflow-hidden p-0">
-        <CardContent className="grid p-0 md:grid-cols-2">
-          <form onSubmit={handleLogin} className="p-6 md:p-8">
-            <div className="flex flex-col gap-3">
-              <div className="flex flex-col items-center text-center">
-                <h1 className="text-2xl font-bold">Selamat Datang</h1>
-                <p className="text-muted-foreground text-balance">
-                  Login dulu untuk mulai Bertani
+      <div className={cn("flex flex-col gap-6 min-h-screen items-center justify-center p-4 bg-gray-50", className)}>
+        <Card className="overflow-hidden w-full max-w-4xl shadow-lg">
+          <CardContent className="grid p-0 md:grid-cols-2">
+            {/* Form Section */}
+            <form onSubmit={handleLogin} className="p-8 md:p-10 flex flex-col justify-center">
+              <div className="space-y-6">
+                {/* Header */}
+                <div className="text-center space-y-2">
+                  <h1 className="text-3xl font-bold text-gray-900">Selamat Datang Kembali 👋</h1>
+                  <p className="text-gray-600">
+                    Login untuk melanjutkan bertani digital
+                  </p>
+                </div>
+
+                {/* Form Fields */}
+                <div className="space-y-4">
+                  {/* Email */}
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-sm font-medium">
+                      Email *
+                    </Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="nama@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="pl-10"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {/* Password */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="password" className="text-sm font-medium">
+                        Password *
+                      </Label>
+                      <a
+                        href="#"
+                        className="text-sm text-emerald-600 hover:text-emerald-700 underline underline-offset-4"
+                      >
+                        Lupa password?
+                      </a>
+                    </div>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Masukkan password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="pl-10 pr-10"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      >
+                        {showPassword ? (
+                          <EyeOff className="w-4 h-4" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Error Message */}
+                {error && (
+                  <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg text-sm">
+                    {error}
+                  </div>
+                )}
+
+                {/* Submit Button */}
+                <Button 
+                  type="submit" 
+                  className="w-full bg-emerald-500 hover:bg-emerald-600" 
+                  disabled={loading}
+                  size="lg"
+                >
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Memproses...
+                    </>
+                  ) : (
+                    <>
+                      <LogIn className="w-4 h-4 mr-2" />
+                      Login Sekarang
+                    </>
+                  )}
+                </Button>
+
+                {/* Divider */}
+                <div className="relative">
+                  <Separator />
+                  <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-2 text-xs text-gray-500">
+                    atau
+                  </span>
+                </div>
+
+                {/* Sign Up Link */}
+                <p className="text-center text-sm text-gray-600">
+                  Belum punya akun?{' '}
+                  <button
+                    type="button"
+                    onClick={() => router.push("/signup")}
+                    className="font-semibold text-emerald-600 hover:text-emerald-700 underline underline-offset-4"
+                  >
+                    Daftar Sekarang
+                  </button>
                 </p>
               </div>
-              <div className="grid gap-3">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="example@gmail.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="grid gap-3">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
-                  <a
-                    href="#"
-                    className="ml-auto text-sm underline-offset-2 hover:underline"
-                  >
-                    Lupa password?
-                  </a>
+            </form>
+
+            {/* Image Section */}
+            <div className="bg-muted relative hidden md:block">
+              <img
+                src="/login.jpg"
+                alt="Farming"
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-8">
+                <div className="text-white space-y-2">
+                  <h2 className="text-3xl font-bold">Kelola Tanaman Dengan Mudah</h2>
+                  <p className="text-gray-200">
+                    Pantau jadwal perawatan, diagnosa penyakit, dan tingkatkan hasil panen dengan teknologi digital
+                  </p>
                 </div>
-                <Input 
-                  id="password" 
-                  type="password" 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)} 
-                  required 
-                />
-              </div>
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Loading..." : "Login"}
-              </Button>
-              {error && <p className="text-red-500 text-sm">{error}</p>}
-              <div className="text-center text-sm">
-                Belum punya akun? buat dulu ya{" "}
-                <button 
-                  onClick={() => router.push("/signup")}
-                  className="underline underline-offset-4 text-blue-600 hover:text-blue-800"
-                >
-                  Sign up
-                </button>
               </div>
             </div>
-          </form>
-          <div className="bg-muted relative hidden md:block">
-            <img
-              src="/login.jpg"
-              alt="Image"
-              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-            />
-          </div>
-        </CardContent>
-      </Card>
-      <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
+          </CardContent>
+        </Card>
+
+        {/* Terms & Privacy */}
+        <div className="text-center text-xs text-gray-500 max-w-md">
+          Dengan melanjutkan, kamu setuju dengan{' '}
+          <a href="#" className="underline underline-offset-4 hover:text-gray-700">
+            Syarat Layanan
+          </a>{' '}
+          dan{' '}
+          <a href="#" className="underline underline-offset-4 hover:text-gray-700">
+            Kebijakan Privasi
+          </a>{' '}
+          kami.
+        </div>
       </div>
-    </div>
     </>
   );
 }
