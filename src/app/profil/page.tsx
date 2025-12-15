@@ -326,7 +326,7 @@ export default function ProfilePage() {
                 {/* Avatar Section */}
                 <div className="flex flex-col items-center gap-4">
                   <Avatar className="w-32 h-32">
-                    <AvatarImage src={profile?.avatar_url} />
+                    <AvatarImage className="object-cover" src={profile?.avatar_url} />
                     <AvatarFallback className="text-3xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white">
                       {profile?.full_name ? getInitials(profile.full_name) : "??"}
                     </AvatarFallback>
