@@ -1,4 +1,4 @@
-import supabase from "@/lib/supabase"; // Asumsikan Anda memiliki konfigurasi Supabase di path ini
+import { supabase } from "@/lib/supabase"; // Asumsikan Anda memiliki konfigurasi Supabase di path ini
 
 // Interface untuk struktur data notifikasi
 interface NotificationPayload {
