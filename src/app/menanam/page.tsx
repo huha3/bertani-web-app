@@ -33,6 +33,7 @@ import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner"
 import { supabase }  from "@/lib/supabase";
+import 'react-day-picker/dist/style.css';
 
 const formSchema = z.object({
   name: z.string().min(1, "Nama harus diisi"),

@@ -299,7 +299,7 @@ export default function ProfilePage() {
       <header className="flex h-16 items-center justify-between border-b px-6 bg-white sticky top-0 z-10">
         <div className="flex items-center gap-3">
           <SidebarTrigger className="-ml-1" />
-          <User className="w-8 h-8 ml-2" />
+          {/* Ganti User icon dengan NavUser */}
           <div>
             <h1 className="text-xl font-semibold ml-2">Profil Saya</h1>
             <p className="text-sm text-black-50 ml-2">Kelola informasi akun kamu</p>
@@ -331,10 +331,10 @@ export default function ProfilePage() {
                       {profile?.full_name ? getInitials(profile.full_name) : "??"}
                     </AvatarFallback>
                   </Avatar>
-                  <Button variant="outline" size="sm" disabled>
+                  {/* <Button variant="outline" size="sm" disabled>
                     <Edit className="w-4 h-4 mr-2" />
                     Ganti Foto
-                  </Button>
+                  </Button> */}
                 </div>
 
                 {/* Info Section */}
