@@ -3,7 +3,6 @@
 export const dynamic = "force-dynamic";
 
 import { useState } from "react";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -161,7 +160,6 @@ export default function AdminGeocodePage() {
     <div className="flex flex-col h-full">
       {/* Header */}
       <header className="flex h-16 items-center border-b px-6 bg-white">
-        <SidebarTrigger className="-ml-1" />
         <div className="flex items-center gap-3 ml-4">
           <Map className="w-6 h-6 text-emerald-600" />
           <h1 className="text-xl font-semibold">Admin - Geocoding Toko</h1>
