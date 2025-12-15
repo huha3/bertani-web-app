@@ -1,4 +1,4 @@
-import supabase from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
 import { insertNotification } from "@/lib/supabase-notifications";
 
 // fungsi utama
