@@ -1,6 +1,6 @@
 'use client'
 import { createContext, useContext, useEffect, useState } from 'react'
-import supabase from '@/lib/supabase' // pastikan path ini sesuai punyamu
+import { supabase } from '@/lib/supabase' // pastikan path ini sesuai punyamu
 
 const UserContext = createContext<any>(null)
 
