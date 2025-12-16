@@ -29,7 +29,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
-import { id } from "date-fns/locale";
+import { onnxService } from '@/lib/onnxModel';
+import { mapIndexToLabel, getSaran, getDeskripsi, getSeverity } from "@/lib/classLabels";
 
 interface DiagnosaResult {
   id: string;
@@ -82,22 +83,18 @@ export default function HasilDiagnosaPage() {
         throw new Error("Field gambar kosong");
       }
 
+      // logika ambil URL dari Supabase
       if (typeof gambarValue === "string" && gambarValue.startsWith("http")) {
-        // sudah URL lengkap
         publicUrl = gambarValue;
       } else {
-        // diasumsikan path di bucket; coba ambil public url
         const { data: publicData } = supabase
           .storage
           .from("diagnosa")
           .getPublicUrl(gambarValue);
 
-        // getPublicUrl mengembalikan { publicUrl: string }
         if (publicData?.publicUrl) {
           publicUrl = publicData.publicUrl;
         } else {
-          // Jika bucket private atau getPublicUrl gagal, buat signed url sementara
-          // expiresIn dalam detik (mis. 60 = 1 menit)
           const expiresIn = 60;
           const { data: signedData, error: signedError } = await supabase
             .storage
@@ -112,26 +109,20 @@ export default function HasilDiagnosaPage() {
         }
       }
 
-      // BUAT LOG untuk debug — hapus kalau sudah oke
+      // BUAT LOG untuk debug
       console.log("Public URL untuk prediksi:", publicUrl);
 
-      // Kirim URL ke backend model (Flask)
-      const response = await fetch("/api/detect", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          image_url: publicUrl
-        })
-      });
+      // **INI BAGIAN BARU**: convert URL ke File
+      const urlToFile = async (url: string, filename: string, mimeType: string): Promise<File> => {
+        const res = await fetch(url);
+        const blob = await res.blob();
+        return new File([blob], filename, { type: mimeType });
+      };
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error("Backend error:", errorData);
-        throw new Error("Gagal melakukan prediksi (backend)");
-      }
+      const imageFile = await urlToFile(publicUrl, "image.jpg", "image/jpeg");
 
-      const aiResult = await response.json();
-      console.log("Hasil prediksi:", aiResult);
+      // panggil model ONNX dengan File
+      const aiResult = await onnxService.predict(imageFile);
 
       // Simpan hasil diagnosa ke database
       const { data: hasilData, error: hasilError } = await supabase
@@ -139,11 +130,11 @@ export default function HasilDiagnosaPage() {
         .insert({
           id_diagnosa: diagnosaData.id,
           user_id: user.id,
-          nama_penyakit: aiResult.nama_penyakit,
-          akurasi: aiResult.akurasi,
+          nama_penyakit: aiResult.className,
+          akurasi: aiResult.confidence,
           saran: aiResult.saran,
           deskripsi: aiResult.deskripsi,
-          tingkat_keparahan: aiResult.tingkat_keparahan,
+          tingkat_keparahan: aiResult.tingkatKeparahan,
           image_url: publicUrl,
         })
         .select()
