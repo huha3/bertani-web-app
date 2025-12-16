@@ -116,11 +116,11 @@ export default function HasilDiagnosaPage() {
       console.log("Public URL untuk prediksi:", publicUrl);
 
       // Kirim URL ke backend model (Flask)
-      const response = await fetch("http://127.0.0.1:5000/api/model", {
+      const response = await fetch("/api/detect", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          image_url: publicUrl // ini publicUrl dari storage
+          image_url: publicUrl
         })
       });
 
