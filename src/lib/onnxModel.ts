@@ -3,7 +3,7 @@ import { mapIndexToLabel, getSaran, getDeskripsi, getSeverity } from './classLab
 
 class OnnxService {
   private session: ort.InferenceSession | null = null;
-  private modelPath = './api/model/Model_CNN_256px.keras';
+  private modelPath = 'src/api/model/Model_CNN_256px.keras';
 
   async loadModel() {
     if (!this.session) {
