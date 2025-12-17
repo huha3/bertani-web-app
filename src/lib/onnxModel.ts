@@ -1,5 +1,5 @@
 import * as ort from 'onnxruntime-web';
-import { getSaran, getDeskripsi, getSeverity } from './classLabels';
+import { mapValueToDisease, getSaran, getDeskripsi, getSeverity } from './classLabels';
 
 class OnnxService {
   private session: ort.InferenceSession | null = null;
@@ -37,13 +37,15 @@ class OnnxService {
     const outputTensor = results[this.session!.outputNames[0]] as ort.Tensor;
     const scores = Array.from(outputTensor.data as Float32Array);
     const maxIndex = scores.indexOf(Math.max(...scores));
+    const value = (outputTensor.data as Float32Array)[0];
 
     return {
       classId: maxIndex,
-      persentase: scores[maxIndex] * 100,
-      saran: getSaran(maxIndex),
-      deskripsi: getDeskripsi(maxIndex),
-      tingkatKeparahan: getSeverity(maxIndex),
+      persentase: scores[value] * 100,
+      saran: getSaran(value),
+      namaPenyakit: mapValueToDisease(value),
+      deskripsi: getDeskripsi(value),
+      tingkatKeparahan: getSeverity(value),
     };
   }
 

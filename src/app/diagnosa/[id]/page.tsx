@@ -30,7 +30,7 @@ import {
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { onnxService } from '@/lib/onnxModel';
-import { mapIndexToLabel, getSaran, getDeskripsi, getSeverity } from "@/lib/classLabels";
+import { mapValueToDisease, getSaran, getDeskripsi, getSeverity } from "@/lib/classLabels";
 
 interface DiagnosaResult {
   id: string;
@@ -128,6 +128,7 @@ export default function HasilDiagnosaPage() {
         .insert({
           id_diagnosa: diagnosaData.id,
           user_id: user.id,
+          nama_penyakit: aiResult.namaPenyakit,
 
           // ⬇️ disesuaikan dengan model regresi
           // nilai_prediksi: aiResult.persentase,

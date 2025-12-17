@@ -1,13 +1,21 @@
 // src/lib/classLabels.ts
 
+
 export const mapIndexToLabel = (index: number) => {
   const labels = [
     "Bercak Daun (Leaf Spot)",
     "Hawar Daun (Blight)",
     "Karat Daun (Rust)",
-    "Sehat (Healthy)"
+    "Sehat (Healthy)",
   ];
   return labels[index] || "Tidak diketahui";
+};
+
+export const mapValueToDisease = (value: number) => {
+  if (value < 0.25) return "Sehat (Healthy)";
+  if (value < 0.5)  return "Bercak Daun (Leaf Spot)";
+  if (value < 0.75) return "Karat Daun (Rust)";
+  return "Hawar Daun (Blight)";
 };
 
 export const getSaran = (index: number) => {
