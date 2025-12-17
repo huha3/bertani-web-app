@@ -68,22 +68,19 @@ export default function HasilDiagnosaPage() {
 
       // Ambil data diagnosa
       const { data: diagnosaData, error: diagnosaError } = await supabase
-      .from("diagnosa")
-      .select("id, gambar, created_at")
-      .eq("id", params.id)
-      .single();
+        .from("diagnosa")
+        .select("id, gambar, created_at")
+        .eq("id", params.id)
+        .single();
 
       if (diagnosaError) throw diagnosaError;
       if (!diagnosaData) throw new Error("Record diagnosa tidak ditemukan");
 
-      let publicUrl = "";
       const gambarValue = diagnosaData.gambar;
+      if (!gambarValue) throw new Error("Field gambar kosong");
 
-      if (!gambarValue) {
-        throw new Error("Field gambar kosong");
-      }
+      let publicUrl = "";
 
-      // logika ambil URL dari Supabase
       if (typeof gambarValue === "string" && gambarValue.startsWith("http")) {
         publicUrl = gambarValue;
       } else {
@@ -95,25 +92,26 @@ export default function HasilDiagnosaPage() {
         if (publicData?.publicUrl) {
           publicUrl = publicData.publicUrl;
         } else {
-          const expiresIn = 60;
           const { data: signedData, error: signedError } = await supabase
             .storage
             .from("diagnosa")
-            .createSignedUrl(gambarValue, expiresIn);
+            .createSignedUrl(gambarValue, 60);
 
           if (signedError || !signedData?.signedUrl) {
-            console.error("Gagal buat signed url:", signedError);
-            throw new Error("Gagal akses file gambar (public atau signed url tidak tersedia)");
+            throw new Error("Gagal akses file gambar");
           }
           publicUrl = signedData.signedUrl;
         }
       }
 
-      // BUAT LOG untuk debug
       console.log("Public URL untuk prediksi:", publicUrl);
 
-      // **INI BAGIAN BARU**: convert URL ke File
-      const urlToFile = async (url: string, filename: string, mimeType: string): Promise<File> => {
+      // convert URL → File
+      const urlToFile = async (
+        url: string,
+        filename: string,
+        mimeType: string
+      ): Promise<File> => {
         const res = await fetch(url);
         const blob = await res.blob();
         return new File([blob], filename, { type: mimeType });
@@ -121,17 +119,20 @@ export default function HasilDiagnosaPage() {
 
       const imageFile = await urlToFile(publicUrl, "image.jpg", "image/jpeg");
 
-      // panggil model ONNX dengan File
+      // 🔥 PREDIKSI ONNX (regresi)
       const aiResult = await onnxService.predict(imageFile);
 
-      // Simpan hasil diagnosa ke database
+      // Simpan hasil diagnosa
       const { data: hasilData, error: hasilError } = await supabase
         .from("hasil_diagnosa")
         .insert({
           id_diagnosa: diagnosaData.id,
           user_id: user.id,
-          nama_penyakit: aiResult.className,
-          akurasi: aiResult.confidence,
+
+          // ⬇️ disesuaikan dengan model regresi
+          nilai_prediksi: aiResult.value,
+          akurasi: aiResult.persentase,
+
           saran: aiResult.saran,
           deskripsi: aiResult.deskripsi,
           tingkat_keparahan: aiResult.tingkatKeparahan,
