@@ -3,16 +3,24 @@ import { getSaran, getDeskripsi, getSeverity } from './classLabels';
 
 class OnnxService {
   private session: ort.InferenceSession | null = null;
-  private modelPath = '/api/model/temp_cnn.onnx'; // sesuaikan lokasi public
+  private modelPath = '/model/temp_cnn.onnx'; // sesuaikan lokasi public
 
   async loadModel() {
     if (!this.session) {
       const res = await fetch(this.modelPath);
+      if (!res.ok) {
+        throw new Error(`Model ONNX tidak ditemukan: ${this.modelPath}`);
+      }
+
       const buffer = await res.arrayBuffer();
 
       this.session = await ort.InferenceSession.create(buffer, {
         executionProviders: ['wasm'],
       });
+
+      // 🔽 TARUH DI SINI
+      console.log("INPUT METADATA:", this.session.inputMetadata);
+      console.log("OUTPUT METADATA:", this.session.outputMetadata);
     }
   }
 
@@ -27,14 +35,15 @@ class OnnxService {
     });
 
     const outputTensor = results[this.session!.outputNames[0]] as ort.Tensor;
-    const value = (outputTensor.data as Float32Array)[0]; // ⬅️ single output
+    const scores = Array.from(outputTensor.data as Float32Array);
+    const maxIndex = scores.indexOf(Math.max(...scores));
 
     return {
-      value,
-      persentase: value * 100,
-      saran: getSaran(value),
-      deskripsi: getDeskripsi(value),
-      tingkatKeparahan: getSeverity(value),
+      classId: maxIndex,
+      persentase: scores[maxIndex] * 100,
+      saran: getSaran(maxIndex),
+      deskripsi: getDeskripsi(maxIndex),
+      tingkatKeparahan: getSeverity(maxIndex),
     };
   }
 

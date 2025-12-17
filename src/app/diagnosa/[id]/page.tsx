@@ -130,8 +130,8 @@ export default function HasilDiagnosaPage() {
           user_id: user.id,
 
           // ⬇️ disesuaikan dengan model regresi
-          nilai_prediksi: aiResult.value,
-          akurasi: aiResult.persentase,
+          nilai_prediksi: aiResult.persentase,
+          // akurasi: aiResult.persentase,
 
           saran: aiResult.saran,
           deskripsi: aiResult.deskripsi,
