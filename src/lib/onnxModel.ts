@@ -3,7 +3,7 @@ import { getSaran, getDeskripsi, getSeverity } from './classLabels';
 
 class OnnxService {
   private session: ort.InferenceSession | null = null;
-  private modelPath = '/model/temp_cnn.onnx'; // sesuaikan lokasi public
+  private modelPath = 'src/api/model/temp_cnn.onnx'; // sesuaikan lokasi public
 
   async loadModel() {
     if (!this.session) {
