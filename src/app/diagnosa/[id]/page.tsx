@@ -152,7 +152,7 @@ export default function HasilDiagnosaPage() {
 
       setResult({
         ...hasilData,
-        akurasi: aiResult.persentase ?? 0,
+        // akurasi: aiResult.persentase ?? 0,
         image_url: publicUrl,
         
       });
@@ -292,9 +292,7 @@ export default function HasilDiagnosaPage() {
                   </h3>
                   <p className="text-sm text-gray-600">
                     AI telah selesai menganalisis gambar tanaman Anda dengan tingkat kepercayaan
-                    {result?.akurasi !== null && result?.akurasi !== undefined
-                    ? `${result.akurasi.toFixed(2)}%`
-                    : "-"}
+                    {result?.akurasi?.toFixed?.(2) ?? "-"}
                   </p>
                 </div>
                 <Badge className={`${getSeverityColor(result.tingkat_keparahan)} border px-4 py-2`}>

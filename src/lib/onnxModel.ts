@@ -1,5 +1,5 @@
 import * as ort from 'onnxruntime-web';
-import { mapValueToDisease, getSaran, getDeskripsi, getSeverity } from './classLabels';
+import { mapValueToDisease, mapIndexToLabel, getSaran, getDeskripsi, getSeverity } from './classLabels';
 
 class OnnxService {
   private session: ort.InferenceSession | null = null;
@@ -36,16 +36,18 @@ class OnnxService {
 
     const outputTensor = results[this.session!.outputNames[0]] as ort.Tensor;
     const scores = Array.from(outputTensor.data as Float32Array);
+
+    // ✅ ambil class dengan probabilitas tertinggi
     const maxIndex = scores.indexOf(Math.max(...scores));
-    const value = (outputTensor.data as Float32Array)[0];
+    const confidence = scores[maxIndex] * 100;
 
     return {
       classId: maxIndex,
-      persentase: scores[value] * 100,
-      saran: getSaran(value),
-      namaPenyakit: mapValueToDisease(value),
-      deskripsi: getDeskripsi(value),
-      tingkatKeparahan: getSeverity(value),
+      persentase: confidence,          // confidence score
+      namaPenyakit: mapIndexToLabel(maxIndex),
+      saran: getSaran(maxIndex),
+      deskripsi: getDeskripsi(maxIndex),
+      tingkatKeparahan: getSeverity(maxIndex),
     };
   }
 
